@@ -32,4 +32,31 @@ console.log(`Connecting to ${endpoint}`);
 
 (async function () {
   await connection.connect();
+  const settings: client.PersistentSubscriptionSettings = {
+    bufferSize: 500,
+    checkpointAfterTime: 1000,
+    checkpointMaxCount: 500,
+    checkpointMinCount: 10,
+    liveBufferSize: 500,
+    maxRetryCount: 20,
+    messageTimeoutMilliseconds: 10000,
+    namedConsumerStrategy: "RoundRobin",
+    readBatchSize: 20,
+    subscriberMaxCount: 10,
+  };
+  await connection.createPersistentSubscription(
+    "exampleStream",
+    "exampleGroup",
+    settings
+  );
+  connection
+    .connectToPersistentSubscription(
+      "exampleStream",
+      "exampleGroup",
+      () => console.log("Event Received"),
+      () => console.log("Subscription Dropped"),
+      undefined,
+      20
+    )
+    .catch((err) => console.log(err));
 })();
